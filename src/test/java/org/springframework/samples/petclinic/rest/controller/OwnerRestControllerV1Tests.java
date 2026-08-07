@@ -18,6 +18,7 @@ package org.springframework.samples.petclinic.rest.controller;
 
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.samples.petclinic.model.Visit;
+import org.springframework.samples.petclinic.rest.advice.NotFoundException;
 import org.springframework.samples.petclinic.rest.controller.v1.OwnerRestControllerV1;
 import tools.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -50,6 +51,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -242,6 +244,20 @@ class OwnerRestControllerV1Tests {
             .andExpect(status().isOk())
             .andExpect(content().contentType("application/json"))
             .andExpect(jsonPath("$").isEmpty());
+    }
+
+    @Test
+    @WithMockUser(roles = "OWNER_ADMIN")
+    void testGetAllOwnersVisitsNotFoundOwner() throws Exception {
+        given(this.clinicService.findAllVisitsByOwnerId(anyInt()))
+            .willThrow(new NotFoundException(1));
+
+        this.mockMvc.perform(get("/api/owners/{ownerId}/visits",
+                owners.get(0).getId())
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isNotFound())
+            .andExpect(content().contentType("application/problem+json"))
+            .andExpect(jsonPath("$.detail", containsString("Not found entity")));
     }
 
     @Test

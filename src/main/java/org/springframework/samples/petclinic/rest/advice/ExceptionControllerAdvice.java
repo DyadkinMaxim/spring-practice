@@ -81,6 +81,15 @@ public class ExceptionControllerAdvice {
         return ResponseEntity.status(status).body(detail);
     }
 
+    @ExceptionHandler(NotFoundException.class)
+    @ResponseBody
+    public ResponseEntity<ProblemDetail> handleDataAccessException(NotFoundException e, HttpServletRequest request) {
+        logger.error("Not found exception at {} {}", request.getMethod(), request.getRequestURI(), e);
+        HttpStatus status = HttpStatus.NOT_FOUND;
+        ProblemDetail detail = this.detailBuild(e, status, request.getRequestURL(), e.getMessage());
+        return ResponseEntity.status(status).body(detail);
+    }
+
     /**
      * Handles all general exceptions by returning a 500 Internal Server Error status with error details.
      *
