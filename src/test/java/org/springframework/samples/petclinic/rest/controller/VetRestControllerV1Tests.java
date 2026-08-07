@@ -38,6 +38,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -135,6 +137,27 @@ class VetRestControllerV1Tests {
         this.mockMvc.perform(get("/api/vets")
         	.accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithMockUser(roles="VET_ADMIN")
+    void testGetAllVetsBySpecialty() throws Exception {
+        given(this.clinicService.findVetsBySpecialty(anyString())).willReturn(vets);
+        this.mockMvc.perform(get("/api/vets/specialty/{specialtyName}", "specialty")
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$", hasSize(3)));
+    }
+
+    @Test
+    @WithMockUser(roles="VET_ADMIN")
+    void testGetAllVetsBySpecialtyEmpty() throws Exception {
+        vets.clear();
+        given(this.clinicService.findVetsBySpecialty(anyString())).willReturn(vets);
+        this.mockMvc.perform(get("/api/vets/specialty/{specialtyName}", "specialty")
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$", hasSize(0)));
     }
 
     @Test

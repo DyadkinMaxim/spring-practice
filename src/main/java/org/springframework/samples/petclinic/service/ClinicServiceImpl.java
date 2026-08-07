@@ -25,6 +25,7 @@ import org.springframework.samples.petclinic.repository.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -263,4 +264,22 @@ public class ClinicServiceImpl implements ClinicService {
         }
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<Visit> findAllVisitsByOwnerId(int ownerId) {
+        Owner owner = findOwnerById(ownerId);
+        return owner.getPets().stream()
+            .flatMap(p -> p.getVisits().stream())
+            .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Vet> findVetsBySpecialty(String specialtyName) {
+        if(specialtyName != null && !specialtyName.isEmpty()) {
+            return vetRepository.findBySpecialtiesName(specialtyName);
+        } else {
+            return new ArrayList<>();
+        }
+    }
 }

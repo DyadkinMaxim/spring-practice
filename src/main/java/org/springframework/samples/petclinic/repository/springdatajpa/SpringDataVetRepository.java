@@ -20,6 +20,8 @@ import org.springframework.data.repository.Repository;
 import org.springframework.samples.petclinic.model.Vet;
 import org.springframework.samples.petclinic.repository.VetRepository;
 
+import java.util.List;
+
 /**
  * Spring Data JPA specialization of the {@link VetRepository} interface
  *
@@ -29,4 +31,6 @@ import org.springframework.samples.petclinic.repository.VetRepository;
 
 @Profile("spring-data-jpa")
 public interface SpringDataVetRepository extends VetRepository, Repository<Vet, Integer> {
+
+    List<Vet> findBySpecialtiesName(String name);
 }

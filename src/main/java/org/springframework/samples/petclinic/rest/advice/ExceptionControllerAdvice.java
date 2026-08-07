@@ -24,6 +24,7 @@ import java.util.Objects;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -51,6 +52,7 @@ public class ExceptionControllerAdvice {
     private static final String ERROR_UNEXPECTED = "An unexpected error occurred while processing your request";
     private static final String ERROR_DATA_INTEGRITY = "The requested resource could not be processed due to a data constraint violation";
     private static final String ERROR_INVALID_REQUEST = "The request contains invalid or missing parameters";
+    private static final String DATA_ACCESS_EXCEPTION = "Data is unavailable";
 
     /**
      * Private method for constructing the {@link ProblemDetail} object passing the name and details of the exception
@@ -68,6 +70,15 @@ public class ExceptionControllerAdvice {
         problemDetail.setProperty("timestamp", Instant.now());
         problemDetail.setProperty("schemaValidationErrors", List.<ValidationMessageDto>of());
         return problemDetail;
+    }
+
+    @ExceptionHandler(DataAccessException.class)
+    @ResponseBody
+    public ResponseEntity<ProblemDetail> handleDataAccessException(DataAccessException e, HttpServletRequest request) {
+        logger.error("Data access exception at {} {}", request.getMethod(), request.getRequestURI(), e);
+        HttpStatus status = HttpStatus.NOT_FOUND;
+        ProblemDetail detail = this.detailBuild(e, status, request.getRequestURL(), DATA_ACCESS_EXCEPTION);
+        return ResponseEntity.status(status).body(detail);
     }
 
     /**

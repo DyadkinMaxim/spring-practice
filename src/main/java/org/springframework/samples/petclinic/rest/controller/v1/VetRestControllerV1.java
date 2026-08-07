@@ -74,6 +74,15 @@ public class VetRestControllerV1 implements VetsApi {
     }
 
     @PreAuthorize("hasRole(@roles.VET_ADMIN)")
+    @GetMapping("/vets/specialty/{specialtyName}")
+    public ResponseEntity<List<VetDto>> getVetsBySpecialty(@PathVariable final String specialtyName) {
+        return new ResponseEntity<>(vetMapper.toVetDtos(
+                clinicService.findVetsBySpecialty(specialtyName))
+            .stream().toList()
+            , HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasRole(@roles.VET_ADMIN)")
     @Override
     public ResponseEntity<VetDto> addVet(VetDto vetDto) {
         HttpHeaders headers = new HttpHeaders();

@@ -38,6 +38,8 @@ import org.springframework.samples.petclinic.rest.dto.VisitFieldsDto;
 import org.springframework.samples.petclinic.service.ClinicService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -199,5 +201,15 @@ public class OwnerRestControllerV1 implements OwnersApi {
             }
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+    @PreAuthorize("hasRole(@roles.OWNER_ADMIN)")
+    @GetMapping("/owners/{ownerId}/visits")
+    public ResponseEntity<List<VisitDto>> findAllVisitsByOwnerId(@PathVariable int ownerId) {
+        return ResponseEntity.ok(
+            clinicService.findAllVisitsByOwnerId(ownerId).stream()
+                .map(visitMapper::toVisitDto)
+                .toList()
+        );
     }
 }
