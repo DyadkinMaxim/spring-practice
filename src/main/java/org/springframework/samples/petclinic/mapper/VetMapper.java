@@ -4,11 +4,8 @@ import org.jspecify.annotations.NonNull;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.springframework.data.domain.Page;
-import org.springframework.samples.petclinic.dto.VetPageDto;
-import org.springframework.samples.petclinic.model.Pet;
+import org.springframework.samples.petclinic.rest.dto.VetPageDto;
 import org.springframework.samples.petclinic.model.Vet;
-import org.springframework.samples.petclinic.rest.dto.OwnerDto;
-import org.springframework.samples.petclinic.rest.dto.PetDto;
 import org.springframework.samples.petclinic.rest.dto.VetDto;
 import org.springframework.samples.petclinic.rest.dto.VetFieldsDto;
 
@@ -29,7 +26,7 @@ public interface VetMapper {
 
     VetDto toVetDto(Vet vet);
 
-    List<OwnerDto> toVetDtoCollection(Collection<Vet> vetCollection);
+    List<VetDto> toVetDtoCollection(Collection<Vet> vetCollection);
 
     Collection<VetDto> toVetDtos(Collection<Vet> vets);
 

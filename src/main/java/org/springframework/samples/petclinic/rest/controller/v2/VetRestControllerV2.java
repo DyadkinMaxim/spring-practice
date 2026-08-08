@@ -5,7 +5,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.samples.petclinic.dto.VetPageDto;
+import org.springframework.samples.petclinic.rest.dto.VetPageDto;
 import org.springframework.samples.petclinic.mapper.VetMapper;
 import org.springframework.samples.petclinic.model.Vet;
 import org.springframework.samples.petclinic.service.ClinicService;
@@ -30,14 +30,12 @@ public class VetRestControllerV2 {
     }
 
     @GetMapping
-    @PreAuthorize("hasRole(@roles.OWNER_ADMIN)")
+    @PreAuthorize("hasRole(@roles.VET_ADMIN)")
     public ResponseEntity<VetPageDto> listVetsPage(
-        @RequestParam(defaultValue = "0") Integer page,
-        @RequestParam(defaultValue = "10") Integer size) {
-        int pageNumber = page == null ? 0 : page;
-        int pageSize = size == null ? 20 : size;
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size) {
         Page<Vet> vets = this.clinicService.findVetsPaged(
-            PageRequest.of(pageNumber, pageSize, Sort.by("id")));
+            PageRequest.of(page, size, Sort.by("id")));
         return new ResponseEntity<>(vetMapper.toVetPageDto(vets), HttpStatus.OK);
     }
 }

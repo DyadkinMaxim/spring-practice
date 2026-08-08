@@ -163,7 +163,7 @@ public class V2RestControllersTests {
     }
 
     @Test
-    @WithMockUser(roles = "OWNER_ADMIN")
+    @WithMockUser(roles = "VET_ADMIN")
     void testGetVetsPageSuccess() throws Exception {
         var pageRequest = PageRequest.of(0, 5, Sort.by("id"));
         var vetsPage = vetMapper.toVets(vets).stream().toList();
