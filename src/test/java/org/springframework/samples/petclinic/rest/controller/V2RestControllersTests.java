@@ -208,7 +208,7 @@ public class V2RestControllersTests {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
+    @WithMockUser(roles = "OWNER_ADMIN")
     void testGetVisitsPageSuccess() throws Exception {
         var pageRequest = PageRequest.of(0, 5, Sort.by("id"));
         var visitsPage = visitMapper.toVisits(visits).stream().toList();

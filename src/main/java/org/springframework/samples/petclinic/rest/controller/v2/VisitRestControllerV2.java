@@ -8,6 +8,7 @@ import org.springframework.samples.petclinic.mapper.VisitMapper;
 import org.springframework.samples.petclinic.model.Visit;
 import org.springframework.samples.petclinic.rest.dto.VisitPageDto;
 import org.springframework.samples.petclinic.service.ClinicService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,6 +29,7 @@ public class VisitRestControllerV2 {
     }
 
     @GetMapping
+    @PreAuthorize("hasRole(@roles.OWNER_ADMIN)")
     public ResponseEntity<VisitPageDto> listVisitsPage(
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "20") int size
