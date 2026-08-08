@@ -12,15 +12,18 @@ import org.springframework.http.MediaType;
 import org.springframework.samples.petclinic.mapper.OwnerMapper;
 import org.springframework.samples.petclinic.mapper.PetMapper;
 import org.springframework.samples.petclinic.mapper.VetMapper;
+import org.springframework.samples.petclinic.mapper.VisitMapper;
 import org.springframework.samples.petclinic.rest.advice.ExceptionControllerAdvice;
 import org.springframework.samples.petclinic.rest.controller.v2.OwnerRestControllerV2;
 import org.springframework.samples.petclinic.rest.controller.v2.PetRestControllerV2;
 import org.springframework.samples.petclinic.rest.controller.v2.VetRestControllerV2;
+import org.springframework.samples.petclinic.rest.controller.v2.VisitRestControllerV2;
 import org.springframework.samples.petclinic.rest.dto.OwnerDto;
 import org.springframework.samples.petclinic.rest.dto.PetDto;
 import org.springframework.samples.petclinic.rest.dto.PetTypeDto;
 import org.springframework.samples.petclinic.rest.dto.SpecialtyDto;
 import org.springframework.samples.petclinic.rest.dto.VetDto;
+import org.springframework.samples.petclinic.rest.dto.VisitDto;
 import org.springframework.samples.petclinic.service.ClinicService;
 import org.springframework.samples.petclinic.service.clinicService.ApplicationTestConfig;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -54,6 +57,9 @@ public class V2RestControllersTests {
     private VetRestControllerV2 vetRestControllerV2;
 
     @Autowired
+    private VisitRestControllerV2 visitRestControllerV2;
+
+    @Autowired
     private OwnerMapper ownerMapper;
 
     @Autowired
@@ -61,6 +67,9 @@ public class V2RestControllersTests {
 
     @Autowired
     private VetMapper vetMapper;
+
+    @Autowired
+    private VisitMapper visitMapper;
 
     @MockitoBean
     private ClinicService clinicService;
@@ -73,12 +82,16 @@ public class V2RestControllersTests {
 
     private List<VetDto> vets;
 
+    private List<VisitDto> visits;
+
     @BeforeEach
     void initOwners() {
         this.mockMvc = MockMvcBuilders.standaloneSetup(
             ownerRestControllerV2,
                 petRestControllerV2,
-                vetRestControllerV2)
+                vetRestControllerV2,
+                visitRestControllerV2
+                )
             .setControllerAdvice(new ExceptionControllerAdvice())
             .build();
         owners = new ArrayList<>();
@@ -120,6 +133,17 @@ public class V2RestControllersTests {
         vets.add(vet.id(2)
             .firstName("Name2")
             .specialties(new ArrayList<>(List.of(specialty))));
+
+        visits = new ArrayList<>();
+        VisitDto visitDto = new VisitDto();
+        visits.add(visitDto.id(1)
+            .description("desc1")
+            .petId(1));
+
+        visitDto = new VisitDto();
+        visits.add(visitDto.id(2)
+            .description("desc2")
+            .petId(2));
     }
 
     @Test
@@ -177,6 +201,27 @@ public class V2RestControllersTests {
             .andExpect(content().contentType("application/json"))
             .andExpect(jsonPath("$.content[0].id").value(1))
             .andExpect(jsonPath("$.content[0].firstName").value("Name1"))
+            .andExpect(jsonPath("$.page").value(0))
+            .andExpect(jsonPath("$.size").value(5))
+            .andExpect(jsonPath("$.totalElements").value(2))
+            .andExpect(jsonPath("$.totalPages").value(1));
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void testGetVisitsPageSuccess() throws Exception {
+        var pageRequest = PageRequest.of(0, 5, Sort.by("id"));
+        var visitsPage = visitMapper.toVisits(visits).stream().toList();
+        given(this.clinicService.findVisitsPaged(any(Pageable.class)))
+            .willReturn(new PageImpl<>(visitsPage, pageRequest, visits.size()));
+        this.mockMvc.perform(get("/api/v2/visits")
+                .param("page", "0")
+                .param("size", "5")
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType("application/json"))
+            .andExpect(jsonPath("$.content[0].id").value(1))
+            .andExpect(jsonPath("$.content[0].description").value("desc1"))
             .andExpect(jsonPath("$.page").value(0))
             .andExpect(jsonPath("$.size").value(5))
             .andExpect(jsonPath("$.totalElements").value(2))

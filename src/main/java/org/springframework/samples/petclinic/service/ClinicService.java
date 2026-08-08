@@ -75,4 +75,5 @@ public interface ClinicService {
     List<Visit> findAllVisitsByOwnerId(int ownerId) throws DataAccessException;
     List<Vet> findVetsBySpecialty(String specialtyName) throws DataAccessException;
     Page<Vet> findVetsPaged(Pageable pageable) throws DataAccessException;
+    Page<Visit> findVisitsPaged(Pageable pageable) throws DataAccessException;
 }

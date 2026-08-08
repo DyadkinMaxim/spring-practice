@@ -288,4 +288,10 @@ public class ClinicServiceImpl implements ClinicService {
     public Page<Vet> findVetsPaged(Pageable pageable) {
         return vetRepository.findVetsPaged(pageable);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<Visit> findVisitsPaged(Pageable pageable) {
+        return visitRepository.findAll(pageable);
+    }
 }

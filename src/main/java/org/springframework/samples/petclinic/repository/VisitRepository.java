@@ -19,6 +19,8 @@ import java.util.Collection;
 import java.util.List;
 
 import org.springframework.dao.DataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.samples.petclinic.model.BaseEntity;
 import org.springframework.samples.petclinic.model.Visit;
 
@@ -43,10 +45,14 @@ public interface VisitRepository {
     void save(Visit visit) throws DataAccessException;
 
     List<Visit> findByPetId(Integer petId);
-    
+
 	Visit findById(int id) throws DataAccessException;
-	
+
 	Collection<Visit> findAll() throws DataAccessException;
+
+    default Page<Visit> findAll(Pageable pageable) throws DataAccessException {
+        throw new UnsupportedOperationException("Unsupported operation.");
+    }
 
 	void delete(Visit visit) throws DataAccessException;
 
