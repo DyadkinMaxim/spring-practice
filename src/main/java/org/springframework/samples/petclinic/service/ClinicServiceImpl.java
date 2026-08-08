@@ -282,4 +282,10 @@ public class ClinicServiceImpl implements ClinicService {
             return new ArrayList<>();
         }
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<Vet> findVetsPaged(Pageable pageable) {
+        return vetRepository.findVetsPaged(pageable);
+    }
 }

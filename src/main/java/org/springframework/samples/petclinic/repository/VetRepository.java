@@ -19,6 +19,8 @@ import java.util.Collection;
 import java.util.List;
 
 import org.springframework.dao.DataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.samples.petclinic.model.Vet;
 
 /**
@@ -41,6 +43,10 @@ public interface VetRepository {
     Collection<Vet> findAll() throws DataAccessException;
 
     default List<Vet> findBySpecialtiesName(String name) throws DataAccessException{
+        throw new UnsupportedOperationException("Not supported operation");
+    }
+
+    default Page<Vet> findVetsPaged(Pageable pageable) throws DataAccessException{
         throw new UnsupportedOperationException("Not supported operation");
     }
 

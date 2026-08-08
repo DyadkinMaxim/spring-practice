@@ -6,16 +6,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.samples.petclinic.mapper.OwnerMapper;
 import org.springframework.samples.petclinic.mapper.PetMapper;
+import org.springframework.samples.petclinic.mapper.VetMapper;
 import org.springframework.samples.petclinic.rest.advice.ExceptionControllerAdvice;
 import org.springframework.samples.petclinic.rest.controller.v2.OwnerRestControllerV2;
 import org.springframework.samples.petclinic.rest.controller.v2.PetRestControllerV2;
+import org.springframework.samples.petclinic.rest.controller.v2.VetRestControllerV2;
 import org.springframework.samples.petclinic.rest.dto.OwnerDto;
 import org.springframework.samples.petclinic.rest.dto.PetDto;
 import org.springframework.samples.petclinic.rest.dto.PetTypeDto;
+import org.springframework.samples.petclinic.rest.dto.SpecialtyDto;
+import org.springframework.samples.petclinic.rest.dto.VetDto;
 import org.springframework.samples.petclinic.service.ClinicService;
 import org.springframework.samples.petclinic.service.clinicService.ApplicationTestConfig;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -29,6 +34,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -45,10 +51,16 @@ public class V2RestControllersTests {
     private PetRestControllerV2 petRestControllerV2;
 
     @Autowired
+    private VetRestControllerV2 vetRestControllerV2;
+
+    @Autowired
     private OwnerMapper ownerMapper;
 
     @Autowired
     private PetMapper petMapper;
+
+    @Autowired
+    private VetMapper vetMapper;
 
     @MockitoBean
     private ClinicService clinicService;
@@ -59,9 +71,14 @@ public class V2RestControllersTests {
 
     private List<PetDto> pets;
 
+    private List<VetDto> vets;
+
     @BeforeEach
     void initOwners() {
-        this.mockMvc = MockMvcBuilders.standaloneSetup(ownerRestControllerV2, petRestControllerV2)
+        this.mockMvc = MockMvcBuilders.standaloneSetup(
+            ownerRestControllerV2,
+                petRestControllerV2,
+                vetRestControllerV2)
             .setControllerAdvice(new ExceptionControllerAdvice())
             .build();
         owners = new ArrayList<>();
@@ -91,6 +108,18 @@ public class V2RestControllersTests {
             .name("Jewel")
             .birthDate(LocalDate.now())
             .type(petType));
+
+        vets = new ArrayList<>();
+        VetDto vet = new VetDto();
+        SpecialtyDto specialty = new SpecialtyDto(1, "specialty1");
+        vets.add(vet.id(1)
+            .firstName("Name1")
+            .specialties(new ArrayList<>(List.of(specialty))));
+
+        vet = new VetDto();
+        vets.add(vet.id(2)
+            .firstName("Name2")
+            .specialties(new ArrayList<>(List.of(specialty))));
     }
 
     @Test
@@ -127,6 +156,27 @@ public class V2RestControllersTests {
             .andExpect(content().contentType("application/json"))
             .andExpect(jsonPath("$.content[0].id").value(3))
             .andExpect(jsonPath("$.content[0].name").value("Rosy"))
+            .andExpect(jsonPath("$.page").value(0))
+            .andExpect(jsonPath("$.size").value(5))
+            .andExpect(jsonPath("$.totalElements").value(2))
+            .andExpect(jsonPath("$.totalPages").value(1));
+    }
+
+    @Test
+    @WithMockUser(roles = "OWNER_ADMIN")
+    void testGetVetsPageSuccess() throws Exception {
+        var pageRequest = PageRequest.of(0, 5, Sort.by("id"));
+        var vetsPage = vetMapper.toVets(vets).stream().toList();
+        given(this.clinicService.findVetsPaged(any(Pageable.class)))
+            .willReturn(new PageImpl<>(vetsPage, pageRequest, vets.size()));
+        this.mockMvc.perform(get("/api/v2/vets")
+                .param("page", "0")
+                .param("size", "5")
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType("application/json"))
+            .andExpect(jsonPath("$.content[0].id").value(1))
+            .andExpect(jsonPath("$.content[0].firstName").value("Name1"))
             .andExpect(jsonPath("$.page").value(0))
             .andExpect(jsonPath("$.size").value(5))
             .andExpect(jsonPath("$.totalElements").value(2))
