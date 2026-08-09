@@ -151,7 +151,7 @@ public class V2RestControllersTests {
     void testGetOwnersPageSuccess() throws Exception {
         var pageRequest = PageRequest.of(0, 2, Sort.by("id"));
         var pageOwners = ownerMapper.toOwners(owners.subList(0, 2)).stream().toList();
-        given(this.clinicService.findOwnersByCriteria(null, pageRequest))
+        given(this.clinicService.findOwners(null, pageRequest))
             .willReturn(new PageImpl<>(pageOwners, pageRequest, owners.size()));
         this.mockMvc.perform(get("/api/v2/owners?page=0&size=2")
                 .accept(MediaType.APPLICATION_JSON))
