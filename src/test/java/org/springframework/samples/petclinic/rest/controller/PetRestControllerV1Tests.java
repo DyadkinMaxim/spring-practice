@@ -229,8 +229,8 @@ class PetRestControllerV1Tests {
 
         this.mockMvc.perform(get("/api/pets/types/stats"))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("dog").value(2))
-            .andExpect(jsonPath("cat").value(3));
+            .andExpect(jsonPath("$.dog").value(2))
+            .andExpect(jsonPath("$.cat").value(3));
 
     }
 
