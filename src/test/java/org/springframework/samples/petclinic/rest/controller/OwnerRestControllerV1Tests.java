@@ -706,4 +706,16 @@ class OwnerRestControllerV1Tests {
             .andExpect(jsonPath("$.[0].lastName").value("Franklin"));
     }
 
+    @Test
+    @WithMockUser(roles = "OWNER_ADMIN")
+    void testFindOwnerByCriteriaNotFound() throws Exception {
+        given(this.clinicService.findOwnerByCriteria(any(), any()))
+            .willReturn(ownerMapper.toOwners(owners).stream().toList());
+
+        this.mockMvc.perform(get("/api/owners/criteria")
+                .param("lastName", "ABCD")
+                .param("city", "AAAA"))
+            .andExpect(status().isNotFound());
+    }
+
 }

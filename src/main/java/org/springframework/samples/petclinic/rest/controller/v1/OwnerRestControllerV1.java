@@ -234,10 +234,12 @@ public class OwnerRestControllerV1 implements OwnersApi {
     public ResponseEntity<List<OwnerDto>> findOwnerByCriteria(
         @RequestParam(required = false) String lastName,
         @RequestParam(required = false) String city) {
+        List<Owner> owners = clinicService.findOwnerByCriteria(lastName, city);
+        if(owners.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
         return new ResponseEntity<>(
-            ownerMapper.toOwnerDtoCollection(
-                clinicService.findOwnerByCriteria(lastName, city)
-            ),
+            ownerMapper.toOwnerDtoCollection(owners),
             HttpStatus.OK);
     }
 }

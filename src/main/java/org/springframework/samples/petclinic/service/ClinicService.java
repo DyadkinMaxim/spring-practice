@@ -15,11 +15,6 @@
  */
 package org.springframework.samples.petclinic.service;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -29,8 +24,11 @@ import org.springframework.samples.petclinic.model.PetType;
 import org.springframework.samples.petclinic.model.Specialty;
 import org.springframework.samples.petclinic.model.Vet;
 import org.springframework.samples.petclinic.model.Visit;
-import org.springframework.samples.petclinic.rest.dto.VisitDto;
-import org.springframework.samples.petclinic.rest.dto.VisitFieldsDto;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Mostly used as a facade so all controllers have a single point of entry
