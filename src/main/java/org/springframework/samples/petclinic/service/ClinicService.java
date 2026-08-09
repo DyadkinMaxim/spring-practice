@@ -78,4 +78,5 @@ public interface ClinicService {
     Page<Vet> findVetsPaged(Pageable pageable) throws DataAccessException;
     Page<Visit> findVisitsPaged(Pageable pageable) throws DataAccessException;
     Map<String, Integer> getPetTypeStats();
+    Pet petTransfer(Integer petId, Integer newOwnerId) throws DataAccessException;
 }

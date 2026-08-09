@@ -16,17 +16,16 @@
 
 package org.springframework.samples.petclinic.rest.controller;
 
-import org.springframework.samples.petclinic.model.PetType;
-import org.springframework.samples.petclinic.rest.controller.v1.PetRestControllerV1;
-import tools.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.samples.petclinic.mapper.PetMapper;
+import org.springframework.samples.petclinic.model.Owner;
 import org.springframework.samples.petclinic.model.Pet;
 import org.springframework.samples.petclinic.rest.advice.ExceptionControllerAdvice;
+import org.springframework.samples.petclinic.rest.controller.v1.PetRestControllerV1;
 import org.springframework.samples.petclinic.rest.dto.OwnerDto;
 import org.springframework.samples.petclinic.rest.dto.PetDto;
 import org.springframework.samples.petclinic.rest.dto.PetTypeDto;
@@ -38,6 +37,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 
 import java.text.SimpleDateFormat;
@@ -48,11 +48,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
 /**
@@ -232,6 +236,42 @@ class PetRestControllerV1Tests {
             .andExpect(jsonPath("$.dog").value(2))
             .andExpect(jsonPath("$.cat").value(3));
 
+    }
+
+    @Test
+    @WithMockUser(roles = "OWNER_ADMIN")
+    void testTransferPetSuccess() throws Exception {
+        Pet pet = new Pet();
+        pet.setName("Name1");
+        Owner owner = new Owner();
+        owner.setId(2);
+        pet.setOwner(owner);
+
+        given(this.clinicService.petTransfer(anyInt(), anyInt())).willReturn(pet);
+
+        this.mockMvc.perform(put("/api/pets/{petId}/transfer/{newOwnerId}",
+                1, 2))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.name").value("Name1"))
+            .andExpect(jsonPath("$.ownerId").value(2));
+
+    }
+
+    @Test
+    @WithMockUser(roles = "OWNER_ADMIN")
+    void testTransferPetOwnerNotFound() throws Exception {
+        Pet pet = new Pet();
+        pet.setName("Name1");
+        Owner owner = new Owner();
+        owner.setId(2);
+        pet.setOwner(owner);
+
+        given(this.clinicService.petTransfer(anyInt(), anyInt()))
+            .willThrow(IllegalStateException.class);
+
+        this.mockMvc.perform(put("/api/pets/{petId}/transfer/{newOwnerId}",
+                1, 2))
+            .andExpect(status().isConflict());
     }
 
 }

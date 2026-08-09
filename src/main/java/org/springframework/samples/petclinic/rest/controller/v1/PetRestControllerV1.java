@@ -27,6 +27,8 @@ import org.springframework.samples.petclinic.service.ClinicService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -102,6 +104,16 @@ public class PetRestControllerV1 implements PetsApi {
     @GetMapping("/pets/types/stats")
     public ResponseEntity<Map<String, Integer>> getStats() {
         return ResponseEntity.ok(clinicService.getPetTypeStats());
+    }
+
+    @PreAuthorize("hasRole(@roles.OWNER_ADMIN)")
+    @PutMapping("/pets/{petId}/transfer/{newOwnerId}")
+    public ResponseEntity<PetDto> petTransfer(
+        @PathVariable("petId") Integer petId,
+        @PathVariable("newOwnerId") Integer newOwnerId) {
+        return ResponseEntity.ok(petMapper.toPetDto(
+            clinicService.petTransfer(petId, newOwnerId)
+        ));
     }
 
 }

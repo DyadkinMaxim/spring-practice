@@ -36,6 +36,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 /**
  * Global Exception handler for REST controllers.
@@ -79,6 +80,16 @@ public class ExceptionControllerAdvice {
         HttpStatus status = HttpStatus.NOT_FOUND;
         ProblemDetail detail = this.detailBuild(e, status, request.getRequestURL(), DATA_ACCESS_EXCEPTION);
         return ResponseEntity.status(status).body(detail);
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ResponseEntity<ProblemDetail> handleConflict(IllegalStateException ex) {
+        ProblemDetail problemDetail =
+            ProblemDetail.forStatus(HttpStatus.CONFLICT);
+        problemDetail.setTitle("Conflict");
+        problemDetail.setDetail(ex.getMessage());
+        return ResponseEntity.status(409).body(problemDetail);
     }
 
     @ExceptionHandler(NotFoundException.class)

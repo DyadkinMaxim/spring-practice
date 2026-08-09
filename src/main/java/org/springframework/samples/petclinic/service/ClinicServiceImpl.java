@@ -307,4 +307,19 @@ public class ClinicServiceImpl implements ClinicService {
                 PetsByType::getPetCount
             ));
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Pet petTransfer(final Integer petId, final Integer newOwnerId) {
+        Pet pet = findPetById(petId);
+        Owner newOwner = findOwnerById(newOwnerId);
+        if (newOwner != null && pet != null &&
+            !pet.getOwner().getId().equals(newOwner.getId())) {
+            pet.setOwner(newOwner);
+        } else {
+            throw new IllegalStateException(String.format(
+                "Pet transfer failed for pet id : %s, ownerId: %s", petId, newOwnerId));
+        }
+        return pet;
+    }
 }
