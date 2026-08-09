@@ -57,7 +57,7 @@ public class OwnerServiceTest {
     }
 
     @Test
-    void addVisitToPetInvalidPet() {
+    void addVisitToPet_petNotBelongingToOwner() {
         Owner owner = new Owner();
         Pet pet = new Pet();
         PetType petType = new PetType();
