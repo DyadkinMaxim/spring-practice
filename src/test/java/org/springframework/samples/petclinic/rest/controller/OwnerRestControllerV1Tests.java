@@ -695,7 +695,7 @@ class OwnerRestControllerV1Tests {
     @Test
     @WithMockUser(roles = "OWNER_ADMIN")
     void testFindOwnerByCriteriaSuccess() throws Exception {
-        given(this.clinicService.findOwnerByCriteria(anyString(), anyString()))
+        given(this.clinicService.findOwnerByCriteria(any(), any()))
             .willReturn(ownerMapper.toOwners(owners).stream().toList());
 
         this.mockMvc.perform(get("/api/owners/criteria")
@@ -718,4 +718,15 @@ class OwnerRestControllerV1Tests {
             .andExpect(status().isNotFound());
     }
 
+    @Test
+    @WithMockUser(roles = "OWNER_ADMIN")
+    void testAudit() throws Exception {
+        given(this.clinicService.findOwnerByCriteria(any(), any()))
+            .willReturn(ownerMapper.toOwners(owners).stream().toList());
+
+        this.mockMvc.perform(get("/api/owners/criteria")
+                .param("lastName", "ABCD")
+                .param("city", "AAAA"))
+            .andExpect(status().isNotFound());
+    }
 }

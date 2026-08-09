@@ -30,6 +30,7 @@ import org.springframework.samples.petclinic.model.*;
 import org.springframework.samples.petclinic.repository.*;
 import org.springframework.samples.petclinic.repository.springdatajpa.PetsByType;
 import org.springframework.samples.petclinic.rest.advice.NotFoundException;
+import org.springframework.samples.petclinic.util.Auditable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -245,6 +246,7 @@ public class ClinicServiceImpl implements ClinicService {
 
     @Override
     @Transactional
+    @Auditable
     public void saveOwner(Owner owner) throws DataAccessException {
         ownerRepository.save(owner);
 
