@@ -33,7 +33,7 @@ public class OwnerRestControllerV2 implements OwnerV2Api {
     public ResponseEntity<OwnerPageDto> listOwnersPage(String lastName, Integer page, Integer size) {
         int pageNumber = page == null ? 0 : page;
         int pageSize = size == null ? 20 : size;
-        Page<Owner> owners = this.clinicService.findOwners(
+        Page<Owner> owners = this.clinicService.findOwnersByCriteria(
             lastName,
             PageRequest.of(pageNumber, pageSize, Sort.by("id")));
         return new ResponseEntity<>(ownerMapper.toOwnerPageDto(owners), HttpStatus.OK);

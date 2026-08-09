@@ -60,7 +60,7 @@ abstract class AbstractClinicServiceTests {
     protected ClinicService clinicService;
 
     @Test
-    void shouldFindOwnersByLastName() {
+    void shouldFindOwnersByCriteriaByLastName() {
         Collection<Owner> owners = this.clinicService.findOwnerByLastName("Davis");
         assertThat(owners.size()).isEqualTo(2);
 
@@ -347,7 +347,7 @@ abstract class AbstractClinicServiceTests {
 
     @Test
     void shouldFindOwnersPage(){
-        Page<Owner> owners = this.clinicService.findOwners(null, PageRequest.of(0, 3, Sort.by("id")));
+        Page<Owner> owners = this.clinicService.findOwnersByCriteria(null, PageRequest.of(0, 3, Sort.by("id")));
         assertThat(owners.getTotalElements()).isEqualTo(10);
         assertThat(owners.getTotalPages()).isEqualTo(4);
         assertThat(owners.getContent())
@@ -356,8 +356,8 @@ abstract class AbstractClinicServiceTests {
     }
 
     @Test
-    void shouldFindOwnersPageByLastName(){
-        Page<Owner> owners = this.clinicService.findOwners("Davis", PageRequest.of(0, 1, Sort.by("id")));
+    void shouldFindOwnersByCriteriaPageByLastName(){
+        Page<Owner> owners = this.clinicService.findOwnersByCriteria("Davis", PageRequest.of(0, 1, Sort.by("id")));
         assertThat(owners.getTotalElements()).isEqualTo(2);
         assertThat(owners.getTotalPages()).isEqualTo(2);
         assertThat(owners.getContent())

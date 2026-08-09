@@ -29,8 +29,6 @@ import org.springframework.samples.petclinic.model.PetType;
 import org.springframework.samples.petclinic.model.Specialty;
 import org.springframework.samples.petclinic.model.Vet;
 import org.springframework.samples.petclinic.model.Visit;
-import org.springframework.samples.petclinic.rest.dto.VisitDto;
-import org.springframework.samples.petclinic.rest.dto.VisitFieldsDto;
 
 /**
  * Mostly used as a facade so all controllers have a single point of entry
@@ -58,7 +56,7 @@ public interface ClinicService {
 	void deleteVet(Vet vet) throws DataAccessException;
 	Owner findOwnerById(int id) throws DataAccessException;
 	Collection<Owner> findAllOwners() throws DataAccessException;
-	Page<Owner> findOwners(String lastName, Pageable pageable) throws DataAccessException;
+	Page<Owner> findOwnersByCriteria(String lastName, Pageable pageable) throws DataAccessException;
 	void saveOwner(Owner owner) throws DataAccessException;
 	void deleteOwner(Owner owner) throws DataAccessException;
 	Collection<Owner> findOwnerByLastName(String lastName) throws DataAccessException;
@@ -82,4 +80,5 @@ public interface ClinicService {
     Map<String, Integer> getPetTypeStats();
     Pet petTransfer(Integer petId, Integer newOwnerId) throws IllegalStateException;
     Pet addVisitToPet(Integer petId, Integer ownerId, Visit visit);
+    List<Owner> findOwnersByCriteria(String lastName, String city);
 }
