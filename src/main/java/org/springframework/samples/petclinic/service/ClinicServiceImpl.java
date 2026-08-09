@@ -310,7 +310,7 @@ public class ClinicServiceImpl implements ClinicService {
 
     @Override
     @Transactional
-    public Pet petTransfer(final Integer petId, final Integer newOwnerId) {
+    public Pet petTransfer(final Integer petId, final Integer newOwnerId) throws IllegalStateException {
         Pet pet = findPetById(petId);
         Owner newOwner = findOwnerById(newOwnerId);
         if (newOwner != null && pet != null &&
@@ -319,6 +319,28 @@ public class ClinicServiceImpl implements ClinicService {
         } else {
             throw new IllegalStateException(String.format(
                 "Pet transfer failed for pet id : %s, ownerId: %s", petId, newOwnerId));
+        }
+        return pet;
+    }
+
+    @Override
+    @Transactional
+    public Pet addVisitToPet(
+        Integer petId, Integer ownerId, Visit newVisit) {
+        Pet pet = findPetById(petId);
+        Owner owner = findOwnerById(ownerId);
+        if (pet != null && owner != null) {
+            if (!owner.getPets().contains(pet)) {
+                throw new IllegalStateException(
+                    String.format("Owner with id %s does not have pet with id %s"
+                        , owner.getId(), petId)
+                );
+            }
+            newVisit.setPet(pet);
+            pet.addVisit(newVisit);
+            savePet(pet);
+        } else {
+            throw new NotFoundException(petId);
         }
         return pet;
     }

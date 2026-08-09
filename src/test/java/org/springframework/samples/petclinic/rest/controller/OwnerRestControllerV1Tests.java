@@ -17,9 +17,11 @@
 package org.springframework.samples.petclinic.rest.controller;
 
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.samples.petclinic.model.Pet;
 import org.springframework.samples.petclinic.model.Visit;
 import org.springframework.samples.petclinic.rest.advice.NotFoundException;
 import org.springframework.samples.petclinic.rest.controller.v1.OwnerRestControllerV1;
+import org.springframework.samples.petclinic.rest.dto.VisitFieldsDto;
 import tools.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -539,10 +541,9 @@ class OwnerRestControllerV1Tests {
         this.mockMvc.perform(post("/api/owners/1/pets")
                 .content(newPetAsJSON).accept(MediaType.APPLICATION_JSON_VALUE).contentType(MediaType.APPLICATION_JSON_VALUE))
             .andDo(MockMvcResultHandlers.print())
-            .andExpect(status().isInternalServerError())
-            .andExpect(jsonPath("$.detail").value("An unexpected error occurred while processing your request"))
-            .andExpect(jsonPath("$.title").value("IllegalStateException"))
-            .andExpect(jsonPath("$.timestamp").exists());
+            .andExpect(status().isConflict())
+            .andExpect(jsonPath("$.detail").value("JDBC timeout while executing insert into pets"))
+            .andExpect(jsonPath("$.title").value("Conflict"));
     }
 
     @Test
@@ -668,6 +669,25 @@ class OwnerRestControllerV1Tests {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(updatedPetAsJSON))
             .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithMockUser(roles = "OWNER_ADMIN")
+    void testAddVisitToOwnersPetSuccess() throws Exception {
+        given(this.clinicService.addVisitToPet(anyInt(), anyInt(), any(Visit.class)))
+            .willReturn(new Pet());
+
+        VisitFieldsDto visitFieldsDto = new VisitFieldsDto();
+        visitFieldsDto.setDate(LocalDate.now());
+        visitFieldsDto.setDescription("Description1");
+        ObjectMapper mapper =  JsonMapper.builder()
+            .defaultDateFormat(new SimpleDateFormat("dd/MM/yyyy"))
+            .build();
+        String newVisitAsJSON = mapper.writeValueAsString(visitFieldsDto);
+        this.mockMvc.perform(post("/api/owners/" + 1 + "/pets/" + 1 + "/visit")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(newVisitAsJSON))
+            .andExpect(status().isCreated());
     }
 
 }

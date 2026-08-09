@@ -40,6 +40,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -211,5 +213,18 @@ public class OwnerRestControllerV1 implements OwnersApi {
                 .map(visitMapper::toVisitDto)
                 .toList()
         );
+    }
+
+    @PreAuthorize("hasRole(@roles.OWNER_ADMIN)")
+    @PostMapping("/owners/{ownerId}/pets/{petId}/visit")
+    public ResponseEntity<PetDto> addVisitToOwnersPet(
+        @PathVariable int ownerId,
+        @PathVariable int petId,
+        @RequestBody VisitFieldsDto visitFieldsDto) {
+        Pet pet = clinicService.addVisitToPet(ownerId, petId,
+            visitMapper.toVisit(visitFieldsDto));
+        return ResponseEntity.status(HttpStatus.CREATED)
+            .body(petMapper.toPetDto(pet));
+
     }
 }
