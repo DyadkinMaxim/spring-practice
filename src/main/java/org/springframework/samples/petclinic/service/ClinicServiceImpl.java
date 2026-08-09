@@ -15,14 +15,22 @@
  */
 package org.springframework.samples.petclinic.service;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.orm.ObjectRetrievalFailureException;
 import org.springframework.samples.petclinic.model.*;
 import org.springframework.samples.petclinic.repository.*;
 import org.springframework.samples.petclinic.repository.springdatajpa.PetsByType;
+import org.springframework.samples.petclinic.rest.advice.NotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,6 +58,7 @@ public class ClinicServiceImpl implements ClinicService {
     private final VisitRepository visitRepository;
     private final SpecialtyRepository specialtyRepository;
     private final PetTypeRepository petTypeRepository;
+    private final EntityManager entityManager;
 
     public ClinicServiceImpl(
         PetRepository petRepository,
@@ -57,13 +66,15 @@ public class ClinicServiceImpl implements ClinicService {
         OwnerRepository ownerRepository,
         VisitRepository visitRepository,
         SpecialtyRepository specialtyRepository,
-        PetTypeRepository petTypeRepository) {
+        PetTypeRepository petTypeRepository,
+        EntityManager entityManager) {
         this.petRepository = petRepository;
         this.vetRepository = vetRepository;
         this.ownerRepository = ownerRepository;
         this.visitRepository = visitRepository;
         this.specialtyRepository = specialtyRepository;
         this.petTypeRepository = petTypeRepository;
+        this.entityManager = entityManager;
     }
 
     @Override
@@ -343,5 +354,41 @@ public class ClinicServiceImpl implements ClinicService {
             throw new NotFoundException(petId);
         }
         return pet;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Owner> findOwnerByCriteria(
+        String lastName, String city) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Owner> cq = cb.createQuery(Owner.class);
+
+        Root<Owner> root = cq.from(Owner.class);
+        List<Predicate> predicates = buildPredicates(lastName, city, cb, root);
+        cq.where(cb.and(predicates.toArray(new Predicate[0])));
+        TypedQuery<Owner> query = entityManager.createQuery(cq);
+
+        return query.getResultList();
+    }
+
+    private List<Predicate> buildPredicates(
+        final String lastName,
+        final String city,
+        CriteriaBuilder cb,
+        Root<Owner> root
+    ) {
+        List<Predicate> predicates = new ArrayList<>();
+
+        if (lastName != null) {
+            predicates.add(
+                cb.equal(root.get("lastName"), lastName)
+            );
+        }
+        if (city != null) {
+            predicates.add(
+                cb.greaterThanOrEqualTo(root.get("city"), city)
+            );
+        }
+        return predicates;
     }
 }

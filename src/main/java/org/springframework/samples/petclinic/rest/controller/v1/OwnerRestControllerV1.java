@@ -43,6 +43,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -226,5 +227,17 @@ public class OwnerRestControllerV1 implements OwnersApi {
         return ResponseEntity.status(HttpStatus.CREATED)
             .body(petMapper.toPetDto(pet));
 
+    }
+
+    @PreAuthorize("hasRole(@roles.OWNER_ADMIN)")
+    @GetMapping("/owners/criteria")
+    public ResponseEntity<List<OwnerDto>> findOwnerByCriteria(
+        @RequestParam(required = false) String lastName,
+        @RequestParam(required = false) String city) {
+        return new ResponseEntity<>(
+            ownerMapper.toOwnerDtoCollection(
+                clinicService.findOwnerByCriteria(lastName, city)
+            ),
+            HttpStatus.OK);
     }
 }

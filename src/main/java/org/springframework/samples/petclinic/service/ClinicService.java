@@ -82,4 +82,5 @@ public interface ClinicService {
     Map<String, Integer> getPetTypeStats();
     Pet petTransfer(Integer petId, Integer newOwnerId) throws IllegalStateException;
     Pet addVisitToPet(Integer petId, Integer ownerId, Visit visit);
+    List<Owner> findOwnerByCriteria(String lastName, String city);
 }

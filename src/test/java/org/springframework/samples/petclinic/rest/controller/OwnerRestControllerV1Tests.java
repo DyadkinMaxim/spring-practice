@@ -57,6 +57,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -688,6 +689,20 @@ class OwnerRestControllerV1Tests {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(newVisitAsJSON))
             .andExpect(status().isCreated());
+    }
+
+    @Test
+    @WithMockUser(roles = "OWNER_ADMIN")
+    void testFindOwnerByCriteriaSuccess() throws Exception {
+        given(this.clinicService.findOwnerByCriteria(anyString(), anyString()))
+            .willReturn(ownerMapper.toOwners(owners).stream().toList());
+
+        this.mockMvc.perform(get("/api/owners/criteria")
+                .param("lastName", "Franklin")
+                .param("city", "Madison"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.[0].firstName").value("George"))
+            .andExpect(jsonPath("$.[0].lastName").value("Franklin"));
     }
 
 }
