@@ -309,7 +309,7 @@ public class ClinicServiceImpl implements ClinicService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public Pet petTransfer(final Integer petId, final Integer newOwnerId) {
         Pet pet = findPetById(petId);
         Owner newOwner = findOwnerById(newOwnerId);
