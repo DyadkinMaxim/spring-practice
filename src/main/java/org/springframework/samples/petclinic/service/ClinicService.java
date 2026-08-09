@@ -17,6 +17,7 @@ package org.springframework.samples.petclinic.service;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.springframework.dao.DataAccessException;
@@ -76,4 +77,5 @@ public interface ClinicService {
     List<Vet> findVetsBySpecialty(String specialtyName) throws DataAccessException;
     Page<Vet> findVetsPaged(Pageable pageable) throws DataAccessException;
     Page<Visit> findVisitsPaged(Pageable pageable) throws DataAccessException;
+    Map<String, Integer> getPetTypeStats();
 }

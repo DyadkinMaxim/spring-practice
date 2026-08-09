@@ -46,4 +46,13 @@ public interface SpringDataPetRepository extends PetRepository, Repository<Pet, 
         value = "SELECT pet FROM Pet pet",
         countQuery = "SELECT count(pet) FROM Pet pet")
     Page<Pet> findAll(Pageable pageable);
+
+    @Query(
+        """
+            select p.type as petType, count(*) as petCount
+             from Pet p
+              group by p.type
+            """
+    )
+    List<PetsByType> countPetsByType() throws DataAccessException;
 }

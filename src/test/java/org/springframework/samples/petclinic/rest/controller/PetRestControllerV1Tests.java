@@ -16,6 +16,7 @@
 
 package org.springframework.samples.petclinic.rest.controller;
 
+import org.springframework.samples.petclinic.model.PetType;
 import org.springframework.samples.petclinic.rest.controller.v1.PetRestControllerV1;
 import tools.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,8 +44,11 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -212,6 +216,22 @@ class PetRestControllerV1Tests {
         this.mockMvc.perform(delete("/api/pets/999")
                 .content(newPetAsJSON).accept(MediaType.APPLICATION_JSON_VALUE).contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithMockUser(roles = "OWNER_ADMIN")
+    void testGetPetsByTypeStats() throws Exception {
+        Map<String, Integer> map = new HashMap<>();
+        map.put("dog", 2);
+        map.put("cat", 3);
+
+        given(this.clinicService.getPetTypeStats()).willReturn(map);
+
+        this.mockMvc.perform(get("/api/pets/types/stats"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("dog").value(2))
+            .andExpect(jsonPath("cat").value(3));
+
     }
 
 }

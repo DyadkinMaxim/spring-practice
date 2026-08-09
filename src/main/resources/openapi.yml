@@ -2283,6 +2283,8 @@ components:
     Visit:
       title: Visit
       description: A booking for a vet visit.
+      minLength: 1
+      maxLength: 255
       allOf:
         - $ref: '#/components/schemas/VisitFields'
         - type: object

@@ -22,14 +22,17 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.orm.ObjectRetrievalFailureException;
 import org.springframework.samples.petclinic.model.*;
 import org.springframework.samples.petclinic.repository.*;
+import org.springframework.samples.petclinic.repository.springdatajpa.PetsByType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 /**
  * Mostly used as a facade for all Petclinic controllers
@@ -293,5 +296,15 @@ public class ClinicServiceImpl implements ClinicService {
     @Transactional(readOnly = true)
     public Page<Visit> findVisitsPaged(Pageable pageable) {
         return visitRepository.findAll(pageable);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Map<String, Integer> getPetTypeStats() {
+        return petRepository.countPetsByType().stream()
+            .collect(Collectors.toMap(
+                pt -> pt.getPetType().getName(),
+                PetsByType::getPetCount
+            ));
     }
 }

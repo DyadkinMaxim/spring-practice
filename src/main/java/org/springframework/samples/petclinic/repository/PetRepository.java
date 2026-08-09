@@ -24,6 +24,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.samples.petclinic.model.BaseEntity;
 import org.springframework.samples.petclinic.model.Pet;
 import org.springframework.samples.petclinic.model.PetType;
+import org.springframework.samples.petclinic.repository.springdatajpa.PetsByType;
 
 /**
  * Repository class for <code>Pet</code> domain objects All method names are compliant with Spring Data naming
@@ -79,4 +80,7 @@ public interface PetRepository {
      */
 	void delete(Pet pet) throws DataAccessException;
 
+    default List<PetsByType> countPetsByType() throws DataAccessException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 }
